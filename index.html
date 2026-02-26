@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Solicitar Empréstimo - SV Giro Rápido</title>
+    <style>
+        :root {
+            --primary-blue: #002b5c;
+            --highlight-yellow: #fff200;
+            --success-green: #28a745;
+            --text-dark: #333;
+            --bg-light: #f4f7f6;
+        }
+
+        /* Ajuste para ocupar a tela toda */
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: var(--bg-light);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start; /* Alinhado ao topo para scroll natural */
+        }
+
+        .container {
+            width: 100%;
+            min-height: 100vh; /* Ocupa a altura total do dispositivo */
+            max-width: 500px;
+            background: #fff;
+            padding: 20px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 0 20px rgba(0,0,0,0.05);
+        }
+
+        header { text-align: center; margin-bottom: 20px; }
+        .logo { font-size: 1.8em; color: var(--primary-blue); margin-bottom: 5px; }
+        .logo b { font-weight: 900; }
+        .tagline { font-size: 0.9em; color: #666; font-weight: bold; margin-bottom: 15px; }
+
+        /* Texto curto descritivo */
+        .description {
+            font-size: 0.85em;
+            color: #555;
+            line-height: 1.4;
+            margin-bottom: 20px;
+            text-align: center;
+            padding: 0 10px;
+        }
+
+        .greeting {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: var(--primary-blue);
+            margin-bottom: 15px;
+        }
+
+        .calculator-box, .pix-box, .success-box {
+            background: var(--bg-light);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            flex-grow: 0;
+        }
+
+        .pix-box, .success-box { display: none; }
+
+        label {
+            display: block;
+            font-weight: bold;
+            color: var(--primary-blue);
+            margin-bottom: 10px;
+            font-size: 0.9em;
+        }
+
+        .value-display {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: var(--primary-blue);
+            text-align: center;
+            display: block;
+        }
+
+        input[type=range] { 
+            width: 100%; 
+            margin: 20px 0; 
+            cursor: pointer;
+            accent-color: var(--primary-blue);
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px 0;
+            border-bottom: 1px dashed #ccc;
+            font-size: 1em;
+        }
+
+        .info-row b { color: var(--text-dark); }
+        .date-highlight { color: #d9534f; font-weight: bold; }
+
+        .total-box {
+            background: var(--highlight-yellow);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .total-box b { font-size: 1.8em; display: block; color: var(--primary-blue); }
+
+        input[type=text] {
+            width: 100%;
+            padding: 15px;
+            box-sizing: border-box;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            font-size: 1.1em;
+            text-align: center;
+        }
+
+        .btn {
+            width: 100%;
+            border: none;
+            padding: 18px;
+            font-size: 1.2em;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-top: auto; /* Empurra para o final da tela */
+        }
+
+        .btn-confirm { background-color: var(--success-green); color: white; }
+
+        .success-box { text-align: center; padding: 40px 20px; }
+
+        .footer-note { 
+            font-size: 0.8em; 
+            color: #888; 
+            text-align: center; 
+            margin-top: 20px;
+            padding-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container" id="app-container">
+    <header>
+        <div class="logo"><b>SV</b> Giro Rápido</div>
+        <div class="tagline">Crédito na conta em minutos</div>
+        
+        <div class="description">
+            A solução inteligente para o fluxo de caixa do seu negócio. Antecipe recursos de forma simples e segura.
+        </div>
+    </header>
+
+    <div id="step-1" style="display: flex; flex-direction: column; height: 100%;">
+        <div class="greeting">Oi, Maria!</div>
+        
+        <div class="calculator-box">
+            <label>Quanto você precisa?</label>
+            <span class="value-display" id="display-valor">R$ 500</span>
+            <input type="range" id="range-emprestimo" min="100" max="1000" step="50" value="500" oninput="atualizarSimulacao()">
+            
+            <div class="info-row">
+                <span>Taxa (10%)</span>
+                <b id="display-juros">R$ 50,00</b>
+            </div>
+            <div class="info-row">
+                <span>Data de Pagamento</span>
+                <b class="date-highlight" id="display-data">--/--/----</b>
+            </div>
+
+            <div class="total-box">
+                <span style="font-size: 0.85em; font-weight: bold;">TOTAL A PAGAR</span>
+                <b id="total-pagar">R$ 550,00</b>
+            </div>
+        </div>
+        <button class="btn btn-confirm" onclick="irParaPix()">SOLICITAR AGORA</button>
+    </div>
+
+    <div id="step-2" class="pix-box">
+        <label>Informe sua Chave PIX para recebimento:</label>
+        <input type="text" id="chave-pix" placeholder="CPF, E-mail ou Celular">
+        <p style="font-size: 0.9em; color: #666; margin-top: 15px; text-align: center;">O valor será enviado imediatamente após a confirmação.</p>
+        <button class="btn btn-confirm" onclick="finalizar()" style="margin-top: 20px;">CONFIRMAR RECEBIMENTO</button>
+    </div>
+
+    <div id="step-3" class="success-box">
+        <div style="font-size: 4em; margin-bottom: 20px;">✅</div>
+        <h2 style="color: var(--primary-blue); margin-bottom: 10px;">Sucesso!</h2>
+        <p style="font-size: 1.1em;">Seu empréstimo foi processado.</p>
+        <p><b>Dinheiro a caminho da sua conta via PIX!</b></p>
+        <button class="btn" style="background: var(--primary-blue); color: white; margin-top: 30px;" onclick="location.reload()">NOVA SOLICITAÇÃO</button>
+    </div>
+
+    <div class="footer-note">
+        * Pagamento único via boleto ou PIX na data informada.
+    </div>
+</div>
+
+<script>
+    function formatarMoeda(valor) {
+        return valor.toLocaleString('pt-br', { style: 'currency', currency: 'BRL' });
+    }
+
+    function calcularDataPagamento() {
+        const hoje = new Date();
+        const dataPagamento = new Date();
+        dataPagamento.setDate(hoje.getDate() + 7);
+        
+        const dia = String(dataPagamento.getDate()).padStart(2, '0');
+        const mes = String(dataPagamento.getMonth() + 1).padStart(2, '0');
+        const ano = dataPagamento.getFullYear();
+        
+        return `${dia}/${mes}/${ano}`;
+    }
+
+    function atualizarSimulacao() {
+        const valorSolicitado = parseInt(document.getElementById('range-emprestimo').value);
+        const juros = valorSolicitado * 0.10;
+        const total = valorSolicitado + juros;
+
+        document.getElementById('display-valor').innerText = "R$ " + valorSolicitado;
+        document.getElementById('display-juros').innerText = formatarMoeda(juros);
+        document.getElementById('total-pagar').innerText = formatarMoeda(total);
+        document.getElementById('display-data').innerText = calcularDataPagamento();
+    }
+
+    function irParaPix() {
+        document.getElementById('step-1').style.display = 'none';
+        document.getElementById('step-2').style.display = 'block';
+    }
+
+    function finalizar() {
+        const chave = document.getElementById('chave-pix').value;
+        if(chave.length < 5) {
+            alert("Por favor, informe uma chave PIX válida.");
+            return;
+        }
+        document.getElementById('step-2').style.display = 'none';
+        document.getElementById('step-3').style.display = 'block';
+    }
+
+    window.onload = atualizarSimulacao;
+</script>
+
+</body>
+</html>
